@@ -1,0 +1,44 @@
+version: "3.3"
+
+services:
+  db:
+    restart: always
+    image: postgres:15.2
+    env_file: .env
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+  
+  minio:
+    restart: always
+    image: minio/minio:latest
+    env_file: .env
+    volumes:
+      - ./minio_storage:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    command: server --console-address ":9001" /data
+  
+
+  clickhouse:
+    restart: always
+    image: yandex/clickhouse-server:latest
+    env_file: .env
+    ports:
+      - "8123:8123"
+      - "9003:9000"
+    volumes:
+      - ./clickhouse:/var/lib/clickhouse
+      - ./data_lake:/opt/data_lake
+      # - ./docker_related_config.xml:/etc/clickhouse-server/config.d/docker_related_config.xml
+
+
+  # airflow:
+  #   restart: on-failure
+  #   image: apache/airflow:2.2.0
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres/postgres
