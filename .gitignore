@@ -1,0 +1,10 @@
+/.env
+__pycache__/
+/clients/__pycache__/
+/parsers/__pycache__/
+/etl/__pycache__/
+/utils/__pycache__/
+clickhouse/
+data_lake/
+minio_storage/
+pgdata/
