@@ -1,10 +1,16 @@
 from parsers.html_processor import VRNFSO_html_processor_spark
 from utils.spark_helper import union_all
+from functools import reduce
+from schemas import EVENT_SCHEMA, DIST_SCHEMA, RESULTS_SCHEMA
+from pyspark.sql import DataFrame
+import pyspark.sql.functions as F
 
-def transform_html_to_tables(rdd, spark):
+
+def transform_html_to_tables(pairs, spark):
+
     events_dfs, dist_dfs, res_dfs = [], [], []
 
-    for url_date, html in rdd.collect():
+    for url_date, html in pairs:
         parser = VRNFSO_html_processor_spark(url_date, html, spark)
 
         df_ev = parser.parse_events()
@@ -18,9 +24,47 @@ def transform_html_to_tables(rdd, spark):
         if df_rs is not None:
             res_dfs.append(df_rs)
 
-    # объединяем списки DataFrame
-    all_events    = union_all(*events_dfs)  if events_dfs else spark.createDataFrame([], parser.parse_events().schema)
-    all_distances = union_all(*dist_dfs)   if dist_dfs  else spark.createDataFrame([], parser.parse_distances().schema)
-    all_results   = union_all(*res_dfs)    if res_dfs   else spark.createDataFrame([], parser.parse_results().schema)
+    def _union_all(dfs, schema):
+        if not dfs:
+            return spark.createDataFrame([], schema)
+        return reduce(DataFrame.unionByName, dfs)
 
-    return all_events, all_distances, all_results
+    return (
+        _union_all(events_dfs, EVENT_SCHEMA),
+        _union_all(dist_dfs,   DIST_SCHEMA),
+        _union_all(res_dfs,    RESULTS_SCHEMA),
+    )
+
+def transform_tables(df_events, df_distances, df_results):
+
+    transformed_events = df_events.select(F.substring(F.col("event_name"), 1, 100).alias("event_name"), 
+                                      F.col("event_date"), 
+                                      F.substring(F.col("city"), 1, 50).alias("city")).distinct()
+
+    transformed_groups = df_distances.select(F.col("event_date"), 
+                                            F.substring(F.col("group_name"), 1, 20).alias("group_name"), 
+                                            F.col("cp"), 
+                                            F.col("length_km")).distinct()
+
+    transformed_participants = df_results.select(F.col("full_name"), 
+                                                F.substring(F.col("team"), 1, 50).alias("team"), 
+                                                F.col("birth_year")).distinct()
+
+    transformed_results = df_results.select(F.col("event_date"), 
+                                            F.col("group_name"),
+                                            F.col("position_number"),
+                                            F.col("full_name"),
+                                            F.col("team"),
+                                            F.substring(F.col("qualification"), 1, 10).alias("qualification"),
+                                            F.col("bib_number"),
+                                            F.col("birth_year"),
+                                            F.col("finish_position"),
+                                            F.col("result_time"),
+                                            F.col("time_gap"))
+
+    return {
+        "events": transformed_events, 
+        "groups": transformed_groups, 
+        "participants": transformed_participants,
+        "results": transformed_results
+    }
