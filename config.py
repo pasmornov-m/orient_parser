@@ -6,7 +6,7 @@ load_dotenv()
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
 MINIO_ENDPOINT = "localhost:9000"
-MINIO_BUCKET_RAW ="raw-html"
+MINIO_BUCKET_RAW = "raw-html"
 MINIO_BUCKET_PROCESSED = "processed-data"
 
 POSTGRES_USER = os.getenv("POSTGRES_USER")

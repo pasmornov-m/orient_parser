@@ -1,13 +1,16 @@
 from etl.reader import read_htmls_from_minio, read_from_parquet, read_from_postgres
 from etl.transformer import transform_html_to_tables, transform_tables
 from etl.writer import write_to_parquet, write_to_postgres
+from utils.pages_checker import check_processed_pages
 import pyspark.sql.functions as F
 
 
-def stage1(spark, bucket_raw, bucket_processed):
+def stage1(spark, postgres_props, bucket_raw, bucket_processed):
 
     html_pairs = read_htmls_from_minio(bucket_raw)
-    events_df, distances_df, results_df = transform_html_to_tables(html_pairs, spark)
+    clean_pairs = check_processed_pages(spark, html_pairs, postgres_props)
+    events_df, distances_df, results_df, log_df = transform_html_to_tables(clean_pairs, spark)
+    write_to_postgres(log_df, "pages_processing_log", postgres_props)
 
     paths = {}
     paths["events_raw"] = f"s3a://{bucket_processed}/events/"
@@ -40,10 +43,10 @@ def stage2(spark, raw_paths, bucket_processed):
     write_to_parquet(transformed_tables["results"], paths["transformed_results"])
 
     return {
-        "events":       transformed_tables["events"],
-        "groups":       transformed_tables["groups"],
+        "events": transformed_tables["events"],
+        "groups": transformed_tables["groups"],
         "participants": transformed_tables["participants"],
-        "results":      transformed_tables["results"]
+        "results": transformed_tables["results"]
     }
 
 def stage3(spark, dfs, postgres_props):

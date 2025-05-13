@@ -8,3 +8,7 @@ clickhouse/
 data_lake/
 minio_storage/
 pgdata/
+config/
+logs/
+plugins/
+postgres-db-volume/

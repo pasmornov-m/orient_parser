@@ -1,5 +1,4 @@
 from clients.minio_client import create_minio_client, list_objects
-from pyspark.sql import SparkSession
 
 
 def read_htmls_from_minio(bucket_name):

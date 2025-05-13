@@ -1,14 +1,19 @@
 from parsers.html_processor import VRNFSO_html_processor_spark
 from utils.spark_helper import union_all
-from functools import reduce
-from schemas import EVENT_SCHEMA, DIST_SCHEMA, RESULTS_SCHEMA
-from pyspark.sql import DataFrame
+from schemas.spark_schemas import EVENT_SCHEMA, DIST_SCHEMA, RESULTS_SCHEMA
 import pyspark.sql.functions as F
-
+from datetime import datetime
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType
+    
 
 def transform_html_to_tables(pairs, spark):
 
     events_dfs, dist_dfs, res_dfs = [], [], []
+
+    log_schema = StructType([StructField("page_name", StringType(), False),
+                         StructField("date", TimestampType(), False)
+                         ])
+    pages_log = []
 
     for url_date, html in pairs:
         parser = VRNFSO_html_processor_spark(url_date, html, spark)
@@ -23,16 +28,15 @@ def transform_html_to_tables(pairs, spark):
             dist_dfs.append(df_ds)
         if df_rs is not None:
             res_dfs.append(df_rs)
-
-    def _union_all(dfs, schema):
-        if not dfs:
-            return spark.createDataFrame([], schema)
-        return reduce(DataFrame.unionByName, dfs)
+        pages_log.append((url_date, datetime.now()))
+    
+    pages_log = spark.createDataFrame(pages_log, schema=log_schema)
 
     return (
-        _union_all(events_dfs, EVENT_SCHEMA),
-        _union_all(dist_dfs,   DIST_SCHEMA),
-        _union_all(res_dfs,    RESULTS_SCHEMA),
+        union_all(spark, events_dfs, EVENT_SCHEMA),
+        union_all(spark, dist_dfs, DIST_SCHEMA),
+        union_all(spark, res_dfs, RESULTS_SCHEMA),
+        pages_log
     )
 
 def transform_tables(df_events, df_distances, df_results):
