@@ -1,6 +1,6 @@
 from parsers.html_processor import VRNFSO_html_processor_spark
 from utils.spark_helper import union_all
-from schemas.spark_schemas import EVENT_SCHEMA, DIST_SCHEMA, RESULTS_SCHEMA
+from db_utils.spark_schemas import EVENT_SCHEMA, DIST_SCHEMA, RESULTS_SCHEMA
 import pyspark.sql.functions as F
 from datetime import datetime
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType

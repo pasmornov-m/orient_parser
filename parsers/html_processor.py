@@ -3,7 +3,7 @@ from utils.text_cleaner import clean_text, clean_city_name
 from datetime import date
 import re
 from pyspark.sql import functions as F
-from schemas.spark_schemas import EVENT_SCHEMA, DIST_SCHEMA, RESULTS_SCHEMA
+from db_utils.spark_schemas import EVENT_SCHEMA, DIST_SCHEMA, RESULTS_SCHEMA
 
 
 class VRNFSO_html_processor_spark:

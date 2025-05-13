@@ -1,7 +1,7 @@
-def write_to_parquet(df, path: str):
+def write_to_parquet(df, path):
     df.write.mode("overwrite").parquet(path)
 
-def write_to_postgres(df, table: str, properties: dict):
+def write_to_postgres(df, table, properties):
     df.write.jdbc(
         url=properties['url'],
         table=table,
