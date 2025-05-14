@@ -4,6 +4,7 @@ __pycache__/
 /parsers/__pycache__/
 /etl/__pycache__/
 /utils/__pycache__/
+/etc
 clickhouse/
 data_lake/
 minio_storage/

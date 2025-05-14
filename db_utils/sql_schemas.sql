@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS events
+DROP TABLE IF EXISTS events CASCADE;
 CREATE TABLE events (
     event_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     event_date DATE NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE events (
 );
 
 
-DROP TABLE IF EXISTS group_params
+DROP TABLE IF EXISTS group_params CASCADE;
 CREATE TABLE group_params (
     group_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     group_name VARCHAR(20),
@@ -17,7 +17,7 @@ CREATE TABLE group_params (
 );
 
 
-DROP TABLE IF EXISTS participants
+DROP TABLE IF EXISTS participants CASCADE;
 CREATE TABLE participants (
     participant_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     full_name TEXT NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE participants (
     team text[]
 )
 
-DROP TABLE IF EXISTS results
+DROP TABLE IF EXISTS results CASCADE;
 CREATE TABLE results (
     result_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     event_id INTEGER NOT NULL REFERENCES events(event_id),
@@ -41,7 +41,7 @@ CREATE TABLE results (
 )
 
 
-DROP TABLE IF EXISTS pages_processing_log
+DROP TABLE IF EXISTS pages_processing_log CASCADE;
 CREATE TABLE pages_processing_log (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     page_name TEXT,

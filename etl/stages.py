@@ -49,30 +49,21 @@ def stage3(spark, raw_paths, bucket_processed):
     print(f"{NOW} -- stage3 start\n")
 
     raw_events_df = read_from_parquet(spark, raw_paths["events_raw"])
-    # raw_events_df.count()
-    print("raw_events_df")
     raw_distances_df = read_from_parquet(spark, raw_paths["distances_raw"])
-    # raw_distances_df.count()
-    print("raw_distances_df")
     raw_results_df = read_from_parquet(spark, raw_paths["results_raw"])
-    # raw_results_df.count()
-    print("raw_results_df")
 
     transformed_tables = transform_tables(raw_events_df, raw_distances_df, raw_results_df)
-    print("transform_tables")
     
     paths = {}
     paths["transformed_events"] = f"s3a://{bucket_processed}/transformed_events/"
     paths["transformed_groups"] = f"s3a://{bucket_processed}/transformed_groups/"
     paths["transformed_participants"] = f"s3a://{bucket_processed}/transformed_participants/"
     paths["transformed_results"] = f"s3a://{bucket_processed}/transformed_results/"
-    print("paths")
 
     write_to_parquet(transformed_tables["events"], paths["transformed_events"])
     write_to_parquet(transformed_tables["groups"], paths["transformed_groups"])
     write_to_parquet(transformed_tables["participants"], paths["transformed_participants"])
     write_to_parquet(transformed_tables["results"], paths["transformed_results"])
-    print("write_to_parquet")
 
     print(f"{NOW} -- stage3 done\n")
 

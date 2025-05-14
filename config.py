@@ -14,4 +14,5 @@ POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_URL = "jdbc:postgresql://db:5432/orient_data"
 
 SPARK_APP_NAME = "VRNFSO_ETL"
-SPARK_MASTER = "local[*]"
+SPARK_MASTER = "spark://spark:7077"
+# SPARK_MASTER = "local[*]"

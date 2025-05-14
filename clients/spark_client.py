@@ -3,13 +3,6 @@ from config import SPARK_APP_NAME, SPARK_MASTER, MINIO_ACCESS_KEY, MINIO_SECRET_
 
 
 def create_spark_session():
-    jars = [
-        "/opt/spark/jars/postgresql-42.7.5.jar",
-        "/opt/spark/jars/hadoop-aws-3.3.4.jar",
-        "/opt/spark/jars/aws-java-sdk-bundle-1.12.262.jar",
-        "/opt/spark/jars/hadoop-common-3.3.4.jar"
-    ]
-    jars_str = ",".join(jars)
     return SparkSession.builder \
     .appName(SPARK_APP_NAME) \
     .master(SPARK_MASTER) \
@@ -20,5 +13,11 @@ def create_spark_session():
     .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem") \
     .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
     .config("spark.hadoop.fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider") \
+    .config("spark.jars", ",".join([
+        "/home/airflow/.ivy2/jars/hadoop-aws-3.3.4.jar",
+        "/home/airflow/.ivy2/jars/aws-java-sdk-bundle-1.12.262.jar",
+        "/home/airflow/.ivy2/jars/postgresql-42.7.5.jar",
+        "/home/airflow/.ivy2/jars/wildfly-openssl-1.0.7.Final.jar",
+        "/home/airflow/.ivy2/jars/checker-qual-3.48.3.jar"
+    ])) \
     .getOrCreate()
-    # .config("spark.jars", jars_str) \

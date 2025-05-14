@@ -30,7 +30,7 @@ x-airflow-common: &airflow-common
     - ./parsers:/opt/airflow/parsers
     - ./utils:/opt/airflow/utils
     - ./db_utils:/opt/airflow/db_utils
-    - ./etc/localtime:/etc/localtime:ro
+    - ./spark_jars:/home/airflow/.ivy2/jars
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on: 
     &airflow-common-depends-on
@@ -120,7 +120,7 @@ services:
       DUMB_INIT_SETSID: "0"
     restart: always
     ports:
-      - "4040:4040"
+      - "4041:4040"
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:
@@ -258,6 +258,39 @@ services:
       - 9000:9000
       - 9001:9001
     command: server --console-address ":9001" /data
+    networks:
+      - all_in_one
+
+  spark-master:
+    image: bitnami/spark:3.5
+    restart: always
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "7077:7077"     # Spark master communication
+      - "8085:8080"     # Spark master web UI
+    networks:
+      - all_in_one
+
+  spark-worker-1:
+    image: bitnami/spark:3.5
+    restart: always
+    container_name: spark-worker-1
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=${SPARK_WORKER_MEMORY}
+      - SPARK_WORKER_CORES=${SPARK_WORKER_CORES}
+      - SPARK_USER=spark
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"
     networks:
       - all_in_one
 
