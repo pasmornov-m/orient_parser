@@ -30,7 +30,7 @@ x-airflow-common: &airflow-common
     - ./parsers:/opt/airflow/parsers
     - ./utils:/opt/airflow/utils
     - ./db_utils:/opt/airflow/db_utils
-    - ./spark_jars:/home/airflow/.ivy2/jars
+    # - ./spark_jars:/home/airflow/.ivy2/jars
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on: 
     &airflow-common-depends-on
