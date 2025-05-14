@@ -34,16 +34,17 @@ def run_stage1(**context):
 
 def run_stage2(**context):
     spark, postgres_props = init_context()
+    print("Spark context stopped?", spark._jsc.sc().isStopped())
     raw_paths = stage2(spark, postgres_props, MINIO_BUCKET_RAW, MINIO_BUCKET_PROCESSED)
-    spark.stop()
     context['ti'].xcom_push(key='raw_paths', value=raw_paths)
+    spark.stop()
 
 def run_stage3(**context):
     spark = create_spark_session()
     raw_paths = context['ti'].xcom_pull(task_ids='stage2_task', key='raw_paths')
     transformed_paths = stage3(spark, raw_paths, MINIO_BUCKET_PROCESSED)
-    spark.stop()
     context['ti'].xcom_push(key='transformed_paths', value=transformed_paths)
+    spark.stop()
 
 def run_stage4(**context):
     spark, postgres_props = init_context()
