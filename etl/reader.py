@@ -25,3 +25,10 @@ def read_from_postgres(spark, table, properties):
             "driver": properties['driver']
         }
     )
+
+def read_from_json(spark, path):
+    df = spark.read.json(path)
+    if df.isEmpty():
+        raise ValueError(f"JSON-файл пуст или отсутствует по пути: {path}")
+    
+    return df.first().asDict()

@@ -1,3 +1,7 @@
+from pyspark.sql import SparkSession
+import json
+
+
 def write_to_parquet(df, path):
     df.write.mode("overwrite").parquet(path)
 
@@ -12,3 +16,7 @@ def write_to_postgres(df, table, properties):
             "driver": properties['driver']
         }
     )
+
+def write_to_json(spark, data, path):
+    df = spark.createDataFrame(data)
+    df.write.mode("overwrite").json(path)

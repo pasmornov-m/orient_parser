@@ -8,11 +8,8 @@ import pyspark.sql.functions as F
 from datetime import datetime
 
 
-NOW = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-
 def stage1(raw_bucket, processed_bucket):
-    print(f"{NOW} -- stage1 start\n")
+    print(f"-- stage1 start\n")
 
     minio_client = create_minio_client()
     ensure_bucket_exists(minio_client, raw_bucket, processed_bucket)
@@ -20,11 +17,11 @@ def stage1(raw_bucket, processed_bucket):
     create_database()
     create_tables()
 
-    print(f"{NOW} -- stage1 done\n")
+    print(f"-- stage1 done\n")
 
 def stage2(spark, postgres_props, bucket_raw, bucket_processed):
 
-    print(f"{NOW} -- stage2 start\n")
+    print(f"-- stage2 start\n")
 
     html_pairs = read_htmls_from_minio(bucket_raw)
     clean_pairs = check_processed_pages(spark, html_pairs, postgres_props)
@@ -40,13 +37,13 @@ def stage2(spark, postgres_props, bucket_raw, bucket_processed):
     write_to_parquet(distances_df, paths["distances_raw"])
     write_to_parquet(results_df, paths["results_raw"])
 
-    print(f"{NOW} -- stage2 done\n")
+    print(f"-- stage2 done\n")
 
     return paths
 
 def stage3(spark, raw_paths, bucket_processed):
 
-    print(f"{NOW} -- stage3 start\n")
+    print(f"-- stage3 start\n")
 
     raw_events_df = read_from_parquet(spark, raw_paths["events_raw"])
     raw_distances_df = read_from_parquet(spark, raw_paths["distances_raw"])
@@ -65,13 +62,13 @@ def stage3(spark, raw_paths, bucket_processed):
     write_to_parquet(transformed_tables["participants"], paths["transformed_participants"])
     write_to_parquet(transformed_tables["results"], paths["transformed_results"])
 
-    print(f"{NOW} -- stage3 done\n")
+    print(f"-- stage3 done\n")
 
     return paths
 
 def stage4(spark, paths, postgres_props):
 
-    print(f"{NOW} -- stage4 start\n")
+    print(f"-- stage4 start\n")
 
     transformed_events = read_from_parquet(spark, paths["transformed_events"])
     transformed_groups = read_from_parquet(spark, paths["transformed_groups"])
@@ -116,4 +113,4 @@ def stage4(spark, paths, postgres_props):
 
     write_to_postgres(processed_results, "results", postgres_props)
 
-    print(f"{NOW} -- stage4 done\n")
+    print(f"-- stage4 done\n")

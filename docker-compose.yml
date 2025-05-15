@@ -30,7 +30,7 @@ x-airflow-common: &airflow-common
     - ./parsers:/opt/airflow/parsers
     - ./utils:/opt/airflow/utils
     - ./db_utils:/opt/airflow/db_utils
-    - ./spark_jars:/opt/spark_jars
+    - ./spark_jars:/opt/spark/spark_jars
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on: 
     &airflow-common-depends-on
@@ -272,10 +272,16 @@ services:
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
     volumes:
-      - ./spark_jars:/opt/spark_jars
+      - ./spark_jars:/opt/spark/spark_jars
+      - ./etl:/opt/spark/etl
+      - ./config.py:/opt/spark/config.py
+      - ./clients:/opt/spark/clients
+      - ./parsers:/opt/spark/parsers
+      - ./utils:/opt/spark/utils
+      - ./db_utils:/opt/spark/db_utils
     ports:
-      - "7077:7077"     # Spark master communication
-      - "8085:8080"     # Spark master web UI
+      - 7077:7077
+      - 8085:8080
     networks:
       - all_in_one
 
@@ -290,11 +296,17 @@ services:
       - SPARK_WORKER_CORES=${SPARK_WORKER_CORES}
       - SPARK_USER=spark
     volumes:
-      - ./spark_jars:/opt/spark_jars
+      - ./spark_jars:/opt/spark/spark_jars
+      - ./etl:/opt/spark/etl
+      - ./config.py:/opt/spark/config.py
+      - ./clients:/opt/spark/clients
+      - ./parsers:/opt/spark/parsers
+      - ./utils:/opt/spark/utils
+      - ./db_utils:/opt/spark/db_utils
     depends_on:
       - spark-master
     ports:
-      - "8081:8081"
+      - 8081:8081
     networks:
       - all_in_one
 

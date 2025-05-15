@@ -1,5 +1,5 @@
 from config import MINIO_BUCKET_RAW, MINIO_BUCKET_PROCESSED
-from etl.stages import stage1, stage2, stage3
+from etl.all_in_one_stages import stage1, stage2, stage3
 from clients.postgres_client import get_postgres_properties
 from clients.spark_client import create_spark_session
 

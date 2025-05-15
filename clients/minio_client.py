@@ -15,7 +15,7 @@ def list_objects(client, bucket_name):
 def get_object(client, bucket_name, object_name):
     return client.get_object(bucket_name, object_name)
 
-def ensure_bucket_exists(client, raw_bucket, processed_bucket):
+def ensure_bucket_exists(client, raw_bucket, processed_bucket, temp_bucket):
     if not client.bucket_exists(raw_bucket):
         print(f"raw_bucket didn't exists")
         raise RuntimeError(f"Critical error: required bucket '{raw_bucket}' does not exist.")
@@ -25,3 +25,9 @@ def ensure_bucket_exists(client, raw_bucket, processed_bucket):
         client.make_bucket(processed_bucket)
     else:
         print(f"processed_bucket '{processed_bucket}' found.")
+
+    if not client.bucket_exists(temp_bucket):
+        print(f"temp_bucket '{temp_bucket}' not found, creating it...")
+        client.make_bucket(temp_bucket)
+    else:
+        print(f"temp_bucket '{temp_bucket}' found.")
