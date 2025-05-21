@@ -3,10 +3,11 @@ __pycache__/
 /parsers/__pycache__/
 /etl/__pycache__/
 /utils/__pycache__/
-/spark_jars
+spark_jars/
 clickhouse/
 data_lake/
-minio_storage/
+minio_storage/temp/
+minio_storage/processed-data/
 pgdata/
 config/
 logs/
