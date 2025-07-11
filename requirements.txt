@@ -1,0 +1,4 @@
+Faker==37.4.0
+minio==7.2.15
+python-dotenv==1.1.1
+Requests==2.32.4
