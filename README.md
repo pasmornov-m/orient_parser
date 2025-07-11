@@ -12,37 +12,37 @@
 
 .
 ├── clients
-│   ├── minio\_client.py           # Клиент для взаимодействия с MinIO
-│   ├── postgres\_client.py        # Клиент для взаимодействия с PostgreSQL
-│   └── spark\_client.py           # Клиент для управления Spark сессиями
-├── create\_example\_pages
-│   ├── generate\_results.sh       # Bash-скрипт для генерации множества страниц
-│   ├── generate\_single\_page.py   # Скрипт генерации одной HTML-страницы с результатами по дате
-│   └── upload\_results\_to\_minio.py# Скрипт загрузки сгенерированных страниц в MinIO
+│   ├── minio_client.py                     # Клиент для взаимодействия с MinIO
+│   ├── postgres_client.py                  # Клиент для взаимодействия с PostgreSQL
+│   └── spark_client.py                     # Клиент для управления Spark сессиями
+├── create_example_pages
+│   ├── generate_results.sh                 # Bash-скрипт для генерации множества страниц
+│   ├── generate_single_page.py             # Скрипт генерации одной HTML-страницы с результатами по дате
+│   └── upload_results_to_minio.py          # Скрипт загрузки сгенерированных страниц в MinIO
 ├── dags
-│   ├── dag\_etl.py                # DAG Apache Airflow для ETL процесса (нерабочее состояние)
-│   └── dag\_etl\_spark\_submit.py   # DAG для запуска Spark submit заданий
-├── db\_utils
-│   ├── check\_postges.py          # Утилиты для проверки состояния PostgreSQL
-│   ├── spark\_schemas.py          # Схемы данных для Spark
-│   └── sql\_schemas.sql           # SQL-схемы для создания таблиц в базе
+│   ├── dag_etl.py                          # DAG Apache Airflow для ETL процесса (нерабочее состояние)
+│   └── dag_etl_spark_submit.py             # DAG для запуска Spark submit заданий
+├── db_utils
+│   ├── check_postges.py                    # Утилиты для проверки состояния PostgreSQL
+│   ├── spark_schemas.py                    # Схемы данных для Spark
+│   └── sql_schemas.sql                     # SQL-схемы для создания таблиц в базе
 ├── etl
-│   ├── stages                    # Стадии ETL процесса (stage1, stage2, ...)
-│   ├── reader.py                 # Модуль чтения данных
-│   ├── transformer.py            # Модуль преобразования данных
-│   └── writer.py                 # Модуль записи данных в целевые хранилища
+│   ├── stages                              # Стадии ETL процесса (stage1, stage2, ...)
+│   ├── reader.py                           # Модуль чтения данных
+│   ├── transformer.py                      # Модуль преобразования данных
+│   └── writer.py                           # Модуль записи данных в целевые хранилища
 ├── parsers
-│   └── html\_processor.py         # Парсер и обработка HTML-страниц с результатами
+│   └── html_processor.py                   # Парсер и обработка HTML-страниц с результатами
 ├── utils
-│   ├── pages\_checker.py          # Проверка и валидация страниц
-│   ├── spark\_helper.py           # Вспомогательные функции для работы со Spark
-│   └── text\_cleaner.py           # Очистка текстовых данных
-├── config.py                    # Конфигурация проекта и константы
-├── docker-compose.yml           # Docker Compose для локального запуска инфраструктуры
-├── download\_spark\_jars.sh       # Скрипт для скачивания JAR файлов Spark
-├── generate\_and\_upload\_example\_pages.sh # Bash-скрипт генерации и загрузки страниц
-├── upload\_real\_pages.py         # Скрипт загрузки реальных страниц из внешних источников в MinIO
-└── requirements.txt               # Библиотеки, необходимые локально
+│   ├── pages_checker.py                    # Проверка и валидация страниц
+│   ├── spark_helper.py                     # Вспомогательные функции для работы со Spark
+│   └── text_cleaner.py                     # Очистка текстовых данных
+├── config.py                               # Конфигурация проекта и константы
+├── docker-compose.yml                      # Docker Compose для локального запуска инфраструктуры
+├── download_spark_jars.sh                  # Скрипт для скачивания JAR файлов Spark
+├── generate_and_upload_example_pages.sh    # Bash-скрипт генерации и загрузки страниц
+├── upload_real_pages.py                    # Скрипт загрузки реальных страниц из внешних источников в MinIO
+└── requirements.txt                        # Библиотеки, необходимые локально
 
 ````
 
