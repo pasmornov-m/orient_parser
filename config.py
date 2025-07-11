@@ -6,10 +6,13 @@ load_dotenv()
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
 MINIO_ENDPOINT = "minio:9000"
+MINIO_ENDPOINT_LOCAL = "localhost:9000"
 MINIO_BUCKET_RAW = "raw-html"
 MINIO_BUCKET_PROCESSED = "processed-data"
 MINIO_BUCKET_TMP = "temp"
 MINIO_TMP_PATH = f"s3a://{MINIO_BUCKET_TMP}/json_path"
+
+EXAMPLE_RESULTS_PAGES = "create_example_pages/results_pages"
 
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")

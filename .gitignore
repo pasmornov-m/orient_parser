@@ -12,3 +12,4 @@ config/
 logs/
 plugins/
 postgres-db-volume/
+create_example_pages/results_pages/
