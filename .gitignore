@@ -1,4 +1,4 @@
-__pycache__/
+**/__pycache__/
 /clients/__pycache__/
 /parsers/__pycache__/
 /etl/__pycache__/

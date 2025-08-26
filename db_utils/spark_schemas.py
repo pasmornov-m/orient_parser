@@ -1,4 +1,4 @@
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DateType, FloatType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DateType, FloatType, TimestampType
 
 EVENT_SCHEMA = StructType([
     StructField("event_name", StringType(), True),
@@ -23,4 +23,10 @@ RESULTS_SCHEMA = StructType([
     StructField("result_time", StringType(), True),
     StructField("time_gap", StringType(), True),
     StructField("finish_position", IntegerType(), True),
+])
+LOG_SCHEMA = StructType([
+    StructField("operation_name", StringType(), False),
+    StructField("start_time", TimestampType(), False),
+    StructField("end_time", TimestampType(), False),
+    StructField("duration_sec", IntegerType(), False)
 ])

@@ -32,3 +32,7 @@ def read_from_json(spark, path):
         raise ValueError(f"JSON-файл пуст или отсутствует по пути: {path}")
     
     return df.first().asDict()
+
+def read_sql_file(path):
+    with open(path, 'r', encoding='utf-8') as file:
+        return file.read()

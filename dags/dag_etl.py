@@ -3,7 +3,7 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 from config import MINIO_BUCKET_RAW, MINIO_BUCKET_PROCESSED
 from etl.all_in_one_stages import stage1, stage2, stage3, stage4
-from clients.postgres_client import get_postgres_properties
+from clients.postgres_client import get_pg_props_psycopg2
 from clients.spark_client import create_spark_session
 
 
@@ -26,7 +26,7 @@ dag = DAG(
 
 def init_context():
     spark = create_spark_session()
-    postgres_props = get_postgres_properties()
+    postgres_props = get_pg_props_psycopg2()
     return spark, postgres_props
 
 def run_stage1(**context):

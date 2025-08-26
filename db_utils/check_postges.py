@@ -1,83 +1,69 @@
-import psycopg2
+from clients.postgres_client import get_pg_props_psycopg2
+from utils.readers import read_sql_file
+from utils.logger import get_logger
 
 
-def create_database():
-    conn = psycopg2.connect(
-        host='db',
-        database='postgres',
-        user='postgres',
-        password='postgres',
-        port=5432
-    )
+logger = get_logger(__name__)
+
+
+def create_database(db_name):
+    conn = get_pg_props_psycopg2(db_name='postgres')
 
     conn.autocommit = True
     cursor = conn.cursor()
 
-    cursor.execute("SELECT 1 FROM pg_database WHERE datname = 'orient_data'")
+    logger.info(f"Проверка существования базы данных '{db_name}'")
+    cursor.execute("SELECT 1 FROM pg_database WHERE datname =  %s", (db_name,))
     exists = cursor.fetchone()
 
     if not exists:
-        cursor.execute("CREATE DATABASE orient_data")
+        logger.info(f"База данных '{db_name}' не найдена. Создаю")
+        cursor.execute(f"CREATE DATABASE {db_name}")
+        logger.info(f"База данных '{db_name}' успешно создана.")
+    else:
+        logger.info(f"База данных '{db_name}' уже существует.")
 
     cursor.close()
     conn.autocommit = False
+    conn.close()
 
-def create_tables():
-    conn_orient = psycopg2.connect(
-        host='db',
-        database='orient_data',
-        user='postgres',
-        password='postgres',
-        port=5432
-    )
 
-    cursor = conn_orient.cursor()
+def create_schema(db_name, schema_name):
+    conn = get_pg_props_psycopg2(db_name)
+    cursor = conn.cursor()
 
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS events(
-            event_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-            event_date DATE NOT NULL,
-            event_name VARCHAR(100),
-            city VARCHAR(50)
-        );
-
-        CREATE TABLE IF NOT EXISTS group_params(
-            group_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-            group_name VARCHAR(20),
-            cp SMALLINT,
-            length_km NUMERIC(6,2),
-            event_id INTEGER REFERENCES events(event_id)
-        );
-
-        CREATE TABLE IF NOT EXISTS participants(
-            participant_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-            full_name TEXT NOT NULL,
-            birth_year SMALLINT,
-            team text[]
-        );
-
-        CREATE TABLE IF NOT EXISTS results(
-            result_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-            event_id INTEGER NOT NULL REFERENCES events(event_id),
-            group_id INTEGER NOT NULL REFERENCES group_params(group_id),
-            participant_id INTEGER NOT NULL REFERENCES participants(participant_id),
-            position_number INTEGER,
-            qualification VARCHAR(10),
-            bib_number  SMALLINT,
-            finish_position  SMALLINT,
-            result_time      VARCHAR(20),
-            time_gap         VARCHAR(20),
-            UNIQUE (event_id, group_id, participant_id)
-        );
-
-        CREATE TABLE IF NOT EXISTS pages_processing_log(
-            id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-            page_name TEXT,
-            date DATE DEFAULT CURRENT_DATE
-        );
-        """)
+    logger.info(f"Создаю схему '{schema_name}' в базе '{db_name}' (если она отсутствует)")
+    cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_name}")
+    logger.info(f"Схема '{schema_name}' готова.")
 
     cursor.close()
-    conn_orient.commit()
-    conn_orient.close()
+    conn.commit()
+    conn.close()
+
+
+def create_table(db_name, sql_filename):
+    conn = get_pg_props_psycopg2(db_name)
+    cursor = conn.cursor()
+
+    logger.info(f"Читаю SQL из файла '{sql_filename}'")
+    sql_code = read_sql_file(sql_filename)
+    logger.debug(f"SQL-код для создания таблиц:\n{sql_code}")
+
+    logger.info("Выполняю SQL для создания таблиц")
+    try:
+        cursor.execute(sql_code)
+        logger.info("Таблицы успешно созданы.")
+    except Exception as e:
+        logger.error(f"Ошибка при создании таблиц: {e}")
+        raise
+
+    cursor.close()
+    conn.commit()
+    conn.close()
+
+def prepare_db(db_name, schema_name, sql_filename):
+    logger.info(f"Проверка/создание БД '{db_name}', схемы '{schema_name}', и таблиц из '{sql_filename}'")
+    create_database(db_name)
+    create_schema(db_name, schema_name)
+    create_table(db_name, sql_filename)
+

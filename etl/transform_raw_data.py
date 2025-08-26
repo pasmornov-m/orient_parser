@@ -1,15 +1,14 @@
-from etl.reader import read_from_parquet, read_from_json
-from etl.transformer import transform_tables
-from etl.writer import write_to_parquet, write_to_json
+from utils.readers import read_from_parquet, read_from_json
+from utils.transformer import transform_tables
+from utils.writers import write_to_parquet, write_to_json
 from config import MINIO_TMP_PATH
-from clients import spark_client
 from pyspark.sql import SparkSession
 import sys
 
 
-def stage3(spark, bucket_processed):
+def transform_raw_data(spark, bucket_processed):
 
-    print(f"-- stage3 start\n")
+    print(f"-- transform_raw_data start\n")
 
     raw_paths = read_from_json(spark, MINIO_TMP_PATH)
 
@@ -33,12 +32,11 @@ def stage3(spark, bucket_processed):
     paths_list = [paths]
     write_to_json(spark, paths_list, MINIO_TMP_PATH)
 
-    print(f"-- stage3 done\n")
+    print(f"-- transform_raw_data done\n")
 
 
 if __name__ == "__main__":
-    # spark = spark_client("stage3")
-    spark = SparkSession.builder.appName("stage3").getOrCreate()
+    spark = SparkSession.builder.appName("transform_raw_data").getOrCreate()
     bucket_processed = sys.argv[1]
-    stage3(spark, bucket_processed)
+    transform_raw_data(spark, bucket_processed)
     spark.stop()

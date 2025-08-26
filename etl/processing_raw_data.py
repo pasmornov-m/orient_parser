@@ -1,21 +1,22 @@
-from etl.reader import read_htmls_from_minio
-from etl.transformer import transform_html_to_tables
-from etl.writer import write_to_parquet, write_to_postgres, write_to_json
+from utils.readers import read_htmls_from_minio
+from utils.transformer import transform_html_to_tables
+from utils.writers import write_to_parquet, write_to_postgres, write_to_json
 from utils.pages_checker import check_processed_pages
-from clients.postgres_client import get_postgres_properties
+from clients.postgres_client import get_pg_props_spark
+from utils.logger import log_to_table
 from config import MINIO_TMP_PATH
 from pyspark.sql import SparkSession
 import sys
 
+# @log_to_table()
+def processing_raw_data(spark, postgres_props, bucket_raw, bucket_processed, db_name, schema_name):
 
-def stage2(spark, postgres_props, bucket_raw, bucket_processed):
-
-    print(f"Stage2 start\n")
+    print(f"processing_raw_data start\n")
 
     html_pairs = read_htmls_from_minio(bucket_raw)
     clean_pairs = check_processed_pages(spark, html_pairs, postgres_props)
     events_df, distances_df, results_df, log_df = transform_html_to_tables(clean_pairs, spark)
-    write_to_postgres(log_df, "pages_processing_log", postgres_props)
+    write_to_postgres(log_df, db_name=db_name, schema_name=schema_name, table="pages_processing_log")
 
     paths = {}
     paths["events_raw"] = f"s3a://{bucket_processed}/events/"
@@ -29,13 +30,15 @@ def stage2(spark, postgres_props, bucket_raw, bucket_processed):
     paths_list = [paths]
     write_to_json(spark, paths_list, MINIO_TMP_PATH)
 
-    print(f"Stage2 done\n")
+    print(f"processing_raw_data done\n")
 
 
 if __name__ == "__main__":
-    spark = SparkSession.builder.appName("stage2").getOrCreate()
+    spark = SparkSession.builder.appName("processing_raw_data").getOrCreate()
     bucket_raw = sys.argv[1]
     bucket_processed = sys.argv[2]
-    postgres_props = get_postgres_properties()
-    stage2(spark, postgres_props, bucket_raw, bucket_processed)
+    db_name = sys.argv[3]
+    schema_name = sys.argv[4]
+    postgres_props = get_pg_props_spark(db_name=db_name)
+    processing_raw_data(spark, postgres_props, bucket_raw, bucket_processed, db_name, schema_name)
     spark.stop()
