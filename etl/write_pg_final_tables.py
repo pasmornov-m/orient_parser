@@ -2,14 +2,18 @@ from utils.readers import read_from_parquet, read_from_json, read_from_postgres
 from utils.writers import write_to_postgres
 from config import MINIO_TMP_PATH
 from clients.postgres_client import get_pg_props_spark
+from utils.logger import log_to_table, get_logger
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 import sys
 
 
+logger = get_logger(__name__)
+
+@log_to_table()
 def write_pg_final_tables(spark, db_name, schema_name):
 
-    print(f"-- write_pg_final_tables start\n")
+    logger.info(f"-- write_pg_final_tables start\n")
 
     postgres_props = get_pg_props_spark(db_name)
 
@@ -58,7 +62,7 @@ def write_pg_final_tables(spark, db_name, schema_name):
 
     write_to_postgres(df=processed_results, db_name=db_name, schema_name=schema_name, table="results")
 
-    print(f"-- write_pg_final_tables done\n")
+    logger.info(f"-- write_pg_final_tables done\n")
 
 
 if __name__ == "__main__":

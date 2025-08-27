@@ -1,11 +1,11 @@
 from utils.readers import read_from_postgres
 
-def check_processed_pages(spark, date_html_pairs, postgres_props):
+def check_processed_pages(spark, date_html_pairs, schema_name, postgres_props):
     if not date_html_pairs:
         raise ValueError("date_html_pairs is empty — nothing to process")
 
     input_pages_df = spark.createDataFrame([(url_date,) for url_date, _ in date_html_pairs],["page_name"])
-    processed_pages_df = read_from_postgres(spark, "pages_processing_log", postgres_props)
+    processed_pages_df = read_from_postgres(spark, f"{schema_name}.pages_processing_log", postgres_props)
     
     new_pages_df = input_pages_df.join(
         processed_pages_df,

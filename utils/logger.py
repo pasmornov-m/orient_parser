@@ -1,7 +1,8 @@
 import logging
 import sys
 import functools
-import time
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from utils.writers import write_to_postgres
 from config import ORIENT_DB_NAME, ORIENT_SCHEMA_NAME, LOG_TABLE
 from db_utils.spark_schemas import LOG_SCHEMA
@@ -25,12 +26,12 @@ def log_to_table(db_name=ORIENT_DB_NAME, schema_name=ORIENT_SCHEMA_NAME, table_n
         def wrapper(*args, **kwargs):
             spark = args[0]
             operation_name = func.__name__
-            start_time = time.time()
+            start_time = datetime.now(ZoneInfo("Europe/Moscow")).replace(tzinfo=None)
             try:
                 result = func(*args, **kwargs)
                 return result
             finally:
-                end_time = time.time()
+                end_time = datetime.now(ZoneInfo("Europe/Moscow")).replace(tzinfo=None)
                 duration = int((end_time - start_time).total_seconds())
                 log_data = [{
                     'operation_name': operation_name,

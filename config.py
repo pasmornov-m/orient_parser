@@ -26,6 +26,7 @@ POSTGRES_URL = f"jdbc:postgresql://{POSTGRES_HOST}:{POSTGRES_PORT}/"
 ORIENT_DB_NAME = 'orient_data'
 ORIENT_SCHEMA_NAME = 'orient_data'
 LOG_TABLE = 'etl_log'
+PAGES_PROCESSING_TABLE = "pages_processing_log"
 
 MAIN_SQL_FILENAME = '/opt/airflow/db_utils/sql_tables.sql'
 

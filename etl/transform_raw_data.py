@@ -2,13 +2,18 @@ from utils.readers import read_from_parquet, read_from_json
 from utils.transformer import transform_tables
 from utils.writers import write_to_parquet, write_to_json
 from config import MINIO_TMP_PATH
+from utils.logger import log_to_table, get_logger
 from pyspark.sql import SparkSession
 import sys
 
 
+logger = get_logger(__name__)
+
+
+@log_to_table()
 def transform_raw_data(spark, bucket_processed):
 
-    print(f"-- transform_raw_data start\n")
+    logger.info(f"-- transform_raw_data start\n")
 
     raw_paths = read_from_json(spark, MINIO_TMP_PATH)
 
@@ -32,7 +37,7 @@ def transform_raw_data(spark, bucket_processed):
     paths_list = [paths]
     write_to_json(spark, paths_list, MINIO_TMP_PATH)
 
-    print(f"-- transform_raw_data done\n")
+    logger.info(f"-- transform_raw_data done\n")
 
 
 if __name__ == "__main__":

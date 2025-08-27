@@ -3,20 +3,27 @@ from utils.transformer import transform_html_to_tables
 from utils.writers import write_to_parquet, write_to_postgres, write_to_json
 from utils.pages_checker import check_processed_pages
 from clients.postgres_client import get_pg_props_spark
-from utils.logger import log_to_table
-from config import MINIO_TMP_PATH
+from utils.logger import log_to_table, get_logger
+from config import MINIO_TMP_PATH, PAGES_PROCESSING_TABLE
 from pyspark.sql import SparkSession
 import sys
 
-# @log_to_table()
-def processing_raw_data(spark, postgres_props, bucket_raw, bucket_processed, db_name, schema_name):
 
-    print(f"processing_raw_data start\n")
+logger = get_logger(__name__)
+
+
+@log_to_table()
+def processing_raw_data(spark, bucket_raw, bucket_processed, db_name, schema_name):
+
+    logger.info(f"processing_raw_data start\n")
+
+    postgres_props = get_pg_props_spark(db_name=db_name)
 
     html_pairs = read_htmls_from_minio(bucket_raw)
-    clean_pairs = check_processed_pages(spark, html_pairs, postgres_props)
+    clean_pairs = check_processed_pages(spark, html_pairs, schema_name, postgres_props)
     events_df, distances_df, results_df, log_df = transform_html_to_tables(clean_pairs, spark)
-    write_to_postgres(log_df, db_name=db_name, schema_name=schema_name, table="pages_processing_log")
+
+    write_to_postgres(log_df, db_name=db_name, schema_name=schema_name, table=PAGES_PROCESSING_TABLE)
 
     paths = {}
     paths["events_raw"] = f"s3a://{bucket_processed}/events/"
@@ -30,7 +37,7 @@ def processing_raw_data(spark, postgres_props, bucket_raw, bucket_processed, db_
     paths_list = [paths]
     write_to_json(spark, paths_list, MINIO_TMP_PATH)
 
-    print(f"processing_raw_data done\n")
+    logger.info(f"processing_raw_data done\n")
 
 
 if __name__ == "__main__":
@@ -39,6 +46,5 @@ if __name__ == "__main__":
     bucket_processed = sys.argv[2]
     db_name = sys.argv[3]
     schema_name = sys.argv[4]
-    postgres_props = get_pg_props_spark(db_name=db_name)
-    processing_raw_data(spark, postgres_props, bucket_raw, bucket_processed, db_name, schema_name)
+    processing_raw_data(spark, bucket_raw, bucket_processed, db_name, schema_name)
     spark.stop()
