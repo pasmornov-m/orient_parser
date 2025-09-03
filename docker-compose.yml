@@ -40,7 +40,6 @@ x-airflow-common: &airflow-common
     - all_in_one
 
 services:
-
   postgres:
     image: postgres:15.2
     environment:

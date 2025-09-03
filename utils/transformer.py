@@ -43,7 +43,9 @@ def transform_tables(df_events, df_distances, df_results):
 
     transformed_events = df_events.select(F.substring(F.col("event_name"), 1, 100).alias("event_name"), 
                                       F.col("event_date"), 
-                                      F.substring(F.col("city"), 1, 50).alias("city")).distinct()
+                                      F.when(F.length(F.col("city")) < 3, F.lit(None))
+                                        .otherwise(F.substring(F.col("city"), 1, 50))
+                                        .alias("city")).distinct()
 
     transformed_groups = df_distances.select(F.col("event_date"), 
                                             F.substring(F.col("group_name"), 1, 20).alias("group_name"), 

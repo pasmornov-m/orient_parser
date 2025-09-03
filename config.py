@@ -55,4 +55,3 @@ SPARK_CONFIG = {
     }
 
 
-EXAMPLE_RESULTS_PAGES = "create_example_pages/results_pages"
